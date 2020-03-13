@@ -147,7 +147,7 @@ dmypy.json
 .pytype/
 .idea/
 .venv/
-.run/
+.runs/
 
 
 *.pth
