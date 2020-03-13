@@ -147,7 +147,10 @@ dmypy.json
 .pytype/
 .idea/
 .venv/
+.run/
 
+
+*.pth
 config.json
 =======
 >>>>>>> 4e7e4f3b96c062d0ee65d3eca58e3e4fe338ebe3
