@@ -14,8 +14,8 @@ from skimage.transform import SimilarityTransform, AffineTransform
 import random
 
 
-num_xy = 14
-num_x_and_y = 28
+num_xy = 11
+num_x_and_y = 22
 class ImageUtility:
 
     def random_rotate(self, _image, _label, file_name_image, file_name_points, fn):
@@ -48,12 +48,15 @@ class ImageUtility:
             [0, 0, 1]
         ])
         landmark_arr_xy, landmark_arr_x, landmark_arr_y = self.create_landmarks(_label, 1, 1)
-        label = np.array(landmark_arr_x + landmark_arr_y).reshape([2, 14])
-        marging = np.ones([1, 14])
+        # label = np.array(landmark_arr_x + landmark_arr_y).reshape([2, 14])
+        label = np.array(landmark_arr_x + landmark_arr_y).reshape([2, 11])
+        # marging = np.ones([1, 14])
+        marging = np.ones([1, 11])
         label = np.concatenate((label, marging), axis=0)
 
         label_t = np.dot(t_matrix, label)
-        lbl_flat = np.delete(label_t, 2, axis=0).reshape([28])
+        # lbl_flat = np.delete(label_t, 2, axis=0).reshape([28])
+        lbl_flat = np.delete(label_t, 2, axis=0).reshape([22])
 
         t_label = self.__reorder(lbl_flat)
 

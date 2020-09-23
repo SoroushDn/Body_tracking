@@ -83,7 +83,7 @@ def generate_hm_and_save():
 
 class InputDataSize:
     image_input_size = 224
-    landmark_len = 28
+    landmark_len = 11
     landmark_face_len = 54
     landmark_nose_len = 18
     landmark_eys_len = 24
@@ -108,23 +108,34 @@ class IbugConf:
     # origin_number_of_train_sample = 2834  # 95 % for train
     # origin_number_of_evaluation_sample = 314  # 5% for evaluation
 
-    origin_number_of_all_sample = 1000  # afw, train_helen, train_lfpw
-    origin_number_of_train_sample = 1000  # 95 % for train
+    # origin_number_of_all_sample = 1000  # afw, train_helen, train_lfpw
+    origin_number_of_all_sample = 3987  # afw, train_helen, train_lfpw
+    origin_number_of_train_sample = 3987  # 95 % for train
     origin_number_of_evaluation_sample = 0  # 5% for evaluation
 
-    augmentation_factor = 3  # create 100 image from 1
-    augmentation_factor_rotate = 20  # create 100 image from 1
+    # augmentation_factor = 3  # create 100 image from 1
+    augmentation_factor = 5  # create 100 image from 1
+    # augmentation_factor_rotate = 20  # create 100 image from 1
+    augmentation_factor_rotate = 13  # create 100 image from 1
 
     sum_of_train_samples = origin_number_of_train_sample * augmentation_factor
     sum_of_validation_samples = origin_number_of_evaluation_sample * augmentation_factor
 
-    img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/images/'
-    pts_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/points/'
+    # img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/images/'
+    img_path_prefix = '/media/data/Soroush_data/body_tracking/FLIC/FLIC/images/'
+    # img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/FLIC/images/'
+    pts_path_prefix = '/media/data/Soroush_data/body_tracking/FLIC/FLIC/imagesAnnotaion_train/'
+    # pts_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/FLIC/imagesAnnotaion_train/'
+    # pts_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/points/'
 
-    rotated_img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/images_rotated/'
-    rotated_pts_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/points_rotated/'
+    rotated_img_path_prefix = '/media/data/Soroush_data/body_tracking/FLIC/FLIC/images_rotated/'
+    # rotated_img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/FLIC/images_rotated/'
+    rotated_pts_path_prefix = '/media/data/Soroush_data/body_tracking/FLIC/FLIC/points_rotated/'
+    # rotated_pts_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/FLIC/points_rotated/'
 
-    before_heatmap_img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/heatmap/'
+    # before_heatmap_img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/heatmap/'
+    # before_heatmap_img_path_prefix = '/home/soroush/PycharmProjects/Bodytracking/dataloader/FLIC/heatmap/'
+    before_heatmap_img_path_prefix = '/media/data/Soroush_data/body_tracking/FLIC/FLIC/heatmap/'
 
 
 
@@ -134,9 +145,10 @@ image_utility = ImageUtility()
 import random
 png_file_arr = []
 png_file_name = []
-for file in sorted(os.listdir(IbugConf.img_path_prefix)):
-    if file.endswith(".jpg") or file.endswith(".png"):
-        png_file_arr.append(os.path.join(IbugConf.img_path_prefix, file))
+for file in sorted(os.listdir(IbugConf.pts_path_prefix)):
+    # if file.endswith(".jpg") or file.endswith(".png"):
+    if file.endswith(".pts"):
+        png_file_arr.append(os.path.join(IbugConf.img_path_prefix, file[:-3] + "jpg"))
         png_file_name.append(file)
 
 number_of_samples = IbugConf.origin_number_of_all_sample
@@ -156,7 +168,7 @@ for i in range(number_of_samples):
         line = fp.readline()
         cnt = 1
         while line:
-            if 3 < cnt < 18:
+            if 3 < cnt < 15:
                 x_y_pnt = line.strip()
                 x = float(x_y_pnt.split(" ")[0])
                 y = float(x_y_pnt.split(" ")[1])
@@ -217,7 +229,7 @@ for i in range(len(os.listdir(IbugConf.rotated_img_path_prefix))):
         line = fp.readline()
         cnt = 1
         while line:
-            if 3 < cnt < 18:
+            if 3 < cnt < 15:
                 x_y_pnt = line.strip()
                 x = float(x_y_pnt.split(" ")[0])
                 y = float(x_y_pnt.split(" ")[1])
@@ -276,7 +288,7 @@ for i in range(len(os.listdir(IbugConf.rotated_img_path_prefix))):
                                        scale_factor_x=scale_factor_x,
                                        scale_factor_y=scale_factor_y)
 
-        #print_image_arr(k, resized_img_new, landmark_arr_x, landmark_arr_y)
+        # print_image_arr(k, resized_img_new, landmark_arr_x, landmark_arr_y)
 
         '''calculate pose'''
         resized_img_new_cp = np.array(resized_img_new)
@@ -303,13 +315,13 @@ for i in range(len(os.listdir(IbugConf.rotated_img_path_prefix))):
         '''test print after augmentation'''
         landmark_arr_flat_n, landmark_arr_x_n, landmark_arr_y_n = image_utility.create_landmarks_from_normalized(
         landmark_arr_flat_normalized, 224, 224, 112, 112)
-        #print_image_arr((i*100)+(k+1), resized_img_new, landmark_arr_x_n, landmark_arr_y_n)
+        # print_image_arr((i*100)+(k+1), resized_img_new, landmark_arr_x_n, landmark_arr_y_n)
 
 
-        heatmap_landmark = generate_hm(56, 56, landmark_arr_flat_normalized, s=1.0)
+        heatmap_landmark = generate_hm(56, 56, landmark_arr_flat_normalized, s=3.0)
         heatmap_landmark_all = np.sum(heatmap_landmark, axis=2)
         #print_image_arr(2*k, heatmap_landmark_all, [], [])
-        """save heatmap"""
+        # save heatmap
 
         file_name_save = png_file_name[i][0:-4] + "_" + str(k) + ".npy"
         hm_f = npy_dir + file_name_save
@@ -335,4 +347,3 @@ for i in range(len(os.listdir(IbugConf.rotated_img_path_prefix))):
         pnt_file.writelines(points_txt)
         pnt_file.write("} \n")
         pnt_file.close()
-

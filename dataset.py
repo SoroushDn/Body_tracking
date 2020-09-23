@@ -3,7 +3,8 @@ import numpy as np
 import torch
 from PIL import Image
 from skimage import io, transform, color
-from torch.utils.data import DataLoader, IterableDataset
+import cv2
+from torch.utils.data import DataLoader, IterableDataset, Dataset
 import scipy.io
 import random
 
@@ -38,29 +39,28 @@ def generate_hm(self, height, width, landmarks, s=1.0, upsample=True):
     return hm
 
 
-class Dataset(IterableDataset):
-    def __init__(self, dataset_image_dir):
+class Dataset(Dataset):
+    def __init__(self, dataset_image_dir, dataset_lbl_dir, transform):
         self.dataset_image_dir = dataset_image_dir
-        self.list_files = sorted(os.listdir(self.dataset_image_dir))
-        self.len_data = np.shape(self.list_files)[0]
-
-    def __iter__(self):
-        i = 0
-        for image_path in self.list_files:
-            if image_path.endswith(".jpg"):
-                image = io.imread(self.dataset_image_dir + image_path)
-                width = np.shape(image)[1]
-                height = np.shape(image)[0]
-                x_center = width / 2
-                y_center = height / 2
-                image = transform.resize(image, (224, 224))
-                file_name = self.dataset_image_dir + image_path[0:-4] + ".npy"
-                points = np.load(file_name)
-
-            yield [torch.tensor(image.swapaxes(1, 2).swapaxes(0, 1)), torch.tensor(points.swapaxes(1, 2).swapaxes(0, 1))]
+        self.dataset_lbl_dir = dataset_lbl_dir
+        self.list_files = [file_name for file_name in os.listdir(self.dataset_image_dir) if file_name.endswith(".jpg")]
+        self.labels = [file_name[0:-4] for file_name in self.list_files]
+        self.transform = transform
 
     def __len__(self):
-        return self.len_data
+        return len(self.list_files)
+
+    def __getitem__(self, idx):
+
+        image = Image.open(self.dataset_image_dir + self.list_files[idx])
+        image = self.transform(image)
+
+        points = np.load(self.dataset_lbl_dir + self.labels[idx] + ".npy")
+        points = points.swapaxes(1, 2)
+        points = points.swapaxes(0, 1)
+
+        return image, points
+
 
 
 
