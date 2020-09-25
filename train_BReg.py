@@ -26,7 +26,7 @@ image_dataset = Dataset(config.dataset_image_dir, config.dataset_lbl_dir, train_
 saved_model_path = config.model_path
 data_loader = DataLoader(image_dataset, batch_size=10, shuffle=True)
 #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#model_mn = MobileNet().to(device)
+#model_AE = MobileNet().to(device)
 
 model_mn = BREg_NeXT()
 if torch.cuda.is_available():
@@ -38,7 +38,7 @@ else:
     criterion = nn.MSELoss()
 
 optim = torch.optim.Adam(model_mn.parameters(), lr=0.0001, weight_decay=1e-5)
-#optim = torch.optim.SGD(model_mn.parameters(), lr=0.0001, momentum=0.9, weight_decay=1e-5)
+#optim = torch.optim.SGD(model_AE.parameters(), lr=0.0001, momentum=0.9, weight_decay=1e-5)
 #loss_function = MSELoss().to(device)
 epoch = 150
 cnt = 0
@@ -49,7 +49,7 @@ print("num of params: " + str(number_params_model))
 model_mn.train()
 for k in range(epoch):
     print("epoch: " + str(k))
-    #model_mn.train()
+    #model_AE.train()
     loss_mean = 0
     cnt = 0
 
@@ -68,8 +68,8 @@ for k in range(epoch):
     #     # #print(np.shape(image))
     #     # #print(np.shape(heat_map))
 
-        #predict = model_mn.forward(Variable(image.type(torch.FloatTensor)).to(device))
-        #predict = model_mn.forward(Variable(image.type(torch.FloatTensor).to(device)))
+        #predict = model_AE.forward(Variable(image.type(torch.FloatTensor)).to(device))
+        #predict = model_AE.forward(Variable(image.type(torch.FloatTensor).to(device)))
         optim.zero_grad()
         alpha = torch.Tensor([1]).cuda()
         beta = torch.Tensor([0]).cuda()

@@ -15,7 +15,7 @@ import torchvision.models as models
 from torchviz import make_dot
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import transforms
-
+from autoencoder_model import Autoencoder
 #
 #
 # writer = SummaryWriter('/home/soroush/PycharmProjects/Bodytracking/body_tracking/runs/fashion_mnist_experiment_1')
@@ -31,42 +31,49 @@ def test_result_per_image(k, img):
     for i in range(14):
         image_utility.print_image_arr_heat(k*100 + i + 1, heatmap_main[i])
 
-model_mn = torch.load("/home/soroush/PycharmProjects/Bodytracking/body_tracking/breg_model/body_tracking_model.pth", map_location=torch.device('cpu'))
+model_AE = torch.load("/home/soroush/PycharmProjects/Bodytracking/body_tracking/body_tracking_model.pth", map_location=torch.device('cpu'))
 #
 #
-#filename = "4400003_0"
+# filename = "4400007_0"
 #k = 0
 filename = "9370003_0"
 k = 1
 # # filename = "4400003_0"
 # # k = 0
 image = Image.open("/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/heatmap/" + filename + ".jpg")
-#image = image.astype(np.float32)
-#image = transform.resize(image, (224, 224))
-#image = image.swapaxes(2, 3).swapaxes(1, 2)
+
+# print(np.shape(image))
+# image = image.astype(np.float32)
+# image = transform.resize(image, (56, 56))
+# image = image.swapaxes(2, 3).swapaxes(1, 2)
 train_transformer = transforms.Compose([
-    transforms.Resize(224),
+    transforms.Resize(56),
     transforms.ToTensor()
 ])
 # image = np.expand_dims(image, axis=0)
-imimage = train_transformer(image)
-# predictedim = model_mn.forward(imimage.unsqueeze(0))
-predictedim = model_mn.forward(imimage.unsqueeze(0),torch.tensor([1], dtype=torch.float),torch.tensor([0], dtype=torch.float))
+# model_AE = Autoencoder()
+imimage = train_transformer(image).unsqueeze(0)
+print(np.shape(imimage))
+predictedim = model_AE.forward(imimage)
+# predictedim = model_mn.forward(imimage.unsqueeze(0),torch.tensor([1], dtype=torch.float),torch.tensor([0], dtype=torch.float))
 prednp = predictedim.data.numpy()
-print(prednp)
+# print(prednp)
 prednp = np.squeeze(prednp, axis=0)
 prednp_sum = np.sum(prednp, axis=0)
 print(predictedim)
 plt.imshow(prednp_sum)
 plt.show()
-test_result_per_image(k, prednp)
-# #
-heatmap = np.load("/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/heatmap/" + filename + ".npy")
-print(heatmap)
-heatmap = np.sum(heatmap, axis=2)
-print(heatmap)
-plt.imshow(heatmap, vmax=1, vmin=0)
+plt.figure()
+plt.imshow(np.asarray(image))
 plt.show()
+ # test_result_per_image(k, prednp)
+# # #
+# heatmap = np.load("/home/soroush/PycharmProjects/Bodytracking/dataloader/LSP/lsp_dataset_original/heatmap/" + filename + ".npy")
+# print(heatmap)
+# heatmap = np.sum(heatmap, axis=2)
+# print(heatmap)
+# plt.imshow(heatmap, vmax=1, vmin=0)
+# plt.show()
 #
 #
 #
@@ -99,5 +106,8 @@ plt.show()
 # writer.add_image('one_image', imimage[0])
 #
 #
-# writer.add_graph(model_mn, imimage.type(torch.FloatTensor))
+# writer.add_graph(model_AE, imimage)
 # writer.close()
+#
+# pytorch_total_params = sum(p.numel() for p in model_AE.parameters())
+# print(pytorch_total_params)
